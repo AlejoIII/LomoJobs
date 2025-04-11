@@ -1,87 +1,113 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import Modal from "./Modal";
+import React from "react";
 
-export default function Header() {
-  const [showLogin, setShowLogin] = useState<boolean>(false);
-  const [showRegister, setShowRegister] = useState<boolean>(false);
-  const [showPostJob, setShowPostJob] = useState<boolean>(false);
-  const [registerType, setRegisterType] = useState<"empresa" | "usuario" | null>(null);
-  const [userType, setUserType] = useState<"empresa" | "usuario" | null>(null);
+interface HeaderProps {
+  userType: "empresa" | "usuario" | null;
+  onLogin: () => void;
+  onRegister: () => void;
+  onPostJob: () => void;
+  showLogin: boolean;
+  showRegister: boolean;
+  showPostJob: boolean;
+  onCloseLogin: () => void;
+  onCloseRegister: () => void;
+  onClosePostJob: () => void;
+  registerType: "empresa" | "usuario" | null;
+  setRegisterType: (type: "empresa" | "usuario" | null) => void;
+  isDarkMode: boolean;
+  toggleTheme: () => void;
+  onLogout: () => void;
+  onViewPosts: () => void;
+  onViewApplications: () => void;
+}
 
+export default function Header({
+  userType,
+  onLogin,
+  onRegister,
+  onPostJob,
+  showLogin,
+  showRegister,
+  showPostJob,
+  onCloseLogin,
+  onCloseRegister,
+  onClosePostJob,
+  registerType,
+  setRegisterType,
+  isDarkMode,
+  toggleTheme,
+  onLogout,
+  onViewPosts,
+  onViewApplications,
+}: HeaderProps) {
   return (
-    <>
-      <header className="relative z-10">
-        <div className="container flex items-center justify-between mx-auto my-4">
-          <Link href="/" className="font-bold xl">LomoJobs</Link>
-          <nav className="flex gap-4">
-            {!userType && (
-              <>
-                <button onClick={() => setShowRegister(true)} className="bg-purple-400 px-4 py-2 rounded-md text-white">Registrarse</button>
-                <button onClick={() => setShowLogin(true)} className="bg-purple-400 px-4 py-2 rounded-md  text-white">Iniciar Sesión</button>
-              </>
-            )}
-            {userType === "empresa" && (
-              <button onClick={() => setShowPostJob(true)} className="bg-purple-400 text-white px-4 py-2 rounded-md">Añadir Oferta</button>
-            )}
-          </nav>
+    <header className="bg-white dark:bg-gray-800 shadow-md transition-colors">
+      <nav className="container mx-auto flex justify-between items-center py-4 px-6">
+        <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+          LomoJobs
         </div>
-      </header>
-
-      {/* Modal de Login */}
-      {showLogin && (
-        <Modal onClose={() => setShowLogin(false)}>
-          <h2 className="text-xl font-bold mb-4">Iniciar Sesión</h2>
-          <input type="email" placeholder="Correo" className="border p-2 w-full mb-2" />
-          <input type="password" placeholder="Contraseña" className="border p-2 w-full mb-4" />
-          <button 
-            className="bg-purple-400 text-white px-4 py-2 w-full rounded-md" 
-            onClick={() => { setUserType("empresa"); setShowLogin(false); }}
-          >
-            Ingresar
-          </button>
-        </Modal>
-      )}
-
-      {/* Modal de Registro */}
-      {showRegister && (
-        <Modal onClose={() => { setShowRegister(false); setRegisterType(null); }}>
-          {!registerType ? (
+        <div className="flex gap-4 items-center">
+          {userType === "empresa" && (
             <>
-              <h2 className="text-xl font-bold mb-4">¿Eres una empresa o un usuario?</h2>
-              <button onClick={() => setRegisterType("empresa")} className="bg-purple-200 px-4 py-2 w-full rounded-md mb-2">Empresa</button>
-              <button onClick={() => setRegisterType("usuario")} className="bg-purple-200 px-4 py-2 w-full rounded-md">Usuario</button>
+              <button
+                onClick={onPostJob}
+                className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md transition"
+              >
+                Publicar Trabajo
+              </button>
+              <button
+                onClick={onViewPosts}
+                className="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-medium py-2 px-4 rounded-md transition"
+              >
+                Mis Publicaciones
+              </button>
             </>
-          ) : (
+          )}
+
+          {userType === "usuario" && (
+            <button
+              onClick={onViewApplications}
+              className="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-medium py-2 px-4 rounded-md transition"
+            >
+              Mis Postulaciones
+            </button>
+          )}
+
+          {!userType && (
             <>
-              <h2 className="text-xl font-bold mb-4">Registrarse como {registerType}</h2>
-              <input type="text" placeholder="Nombre..." className="border p-2 w-full mb-2" />
-              <input type="email" placeholder="Correo..." className="border p-2 w-full mb-2" />
-              <input type="password" placeholder="Contraseña..." className="border p-2 w-full mb-4" />
-              <button 
-                className="bg-purple-400 text-white px-4 py-2 w-full rounded-md" 
-                onClick={() => { setUserType(registerType); setShowRegister(false); }}
+              <button
+                onClick={onLogin}
+                className="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-medium py-2 px-4 rounded-md transition"
+              >
+                Iniciar Sesión
+              </button>
+              <button
+                onClick={onRegister}
+                className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md transition"
               >
                 Registrarse
               </button>
             </>
           )}
-        </Modal>
-      )}
 
-      {/* Modal de Añadir Oferta */}
-      {showPostJob && userType === "empresa" && (
-        <Modal onClose={() => setShowPostJob(false)}>
-          <h2 className="text-xl font-bold mb-4">Añadir Oferta</h2>
-          <input type="text" placeholder="Título del puesto" className="border p-2 w-full mb-2" />
-          <input type="text" placeholder="Empresa" className="border p-2 w-full mb-2" />
-          <input type="text" placeholder="Ubicación" className="border p-2 w-full mb-2" />
-          <textarea placeholder="Descripción" className="border p-2 w-full mb-2" rows={4}></textarea>
-          <button className="bg-purple-400 text-white px-4 py-2 w-full rounded-md">Publicar</button>
-        </Modal>
-      )}
-    </>
+          {userType && (
+            <button
+              onClick={onLogout}
+              className="bg-red-400 hover:bg-red-300 text-white font-medium py-2 px-4 rounded-md transition"
+            >
+              Cerrar Sesión
+            </button>
+          )}
+
+          <button
+            onClick={toggleTheme}
+            className="py-2 px-4 rounded-md bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+          >
+            {isDarkMode ? "☀️" : "🌙"}
+          </button>
+        </div>
+      </nav>
+    </header>
   );
 }

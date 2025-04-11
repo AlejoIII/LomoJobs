@@ -1,7 +1,6 @@
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Header from "./components/Header";
-
+import { Geist, Geist_Mono } from "next/font/google";
+import ClientWrapper from "./ClientWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,19 +12,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        <Header />
-        {children}
-        <footer className="container py-8 text-gray-500">
-          LomoJobs &Copy; 2025 - Todos los derechos reservados
-        </footer>
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <ClientWrapper>{children}</ClientWrapper>
       </body>
     </html>
   );
