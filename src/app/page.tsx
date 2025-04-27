@@ -34,7 +34,7 @@ export default function Home() {
         buttonText="Buscar"
         onSearch={handleSearch}
       />
-      <Jobs jobs={jobData} searchQuery={searchQuery} />
-    </>
+      <Jobs searchQuery={searchQuery} />
+</>
   );
 }

@@ -18,7 +18,11 @@ interface Job {
   };
 }
 
-export default function Jobs() {
+interface JobsProps {
+  searchQuery: string;
+}
+
+export default function Jobs({searchQuery }: JobsProps) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [selectedLevel, setSelectedLevel] = useState("Todos");
@@ -30,7 +34,6 @@ export default function Jobs() {
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [userType, setUserType] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
   const jobsPerPage = 3;
@@ -139,11 +142,6 @@ export default function Jobs() {
     }
   };
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query.toLowerCase());
-    setCurrentPage(1); 
-  };
-  
   return (
     <div className="bg-purple-100 dark:bg-purple-900 py-6 mx-32 rounded-3xl transition-colors duration-300">
       <div className="container">
