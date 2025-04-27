@@ -174,7 +174,12 @@ export async function updateJob(jobId: string, updatedJob: any) {
 
 export async function deleteJob(jobId: string) {
   const token = localStorage.getItem("token"); 
-  const res = await fetch(`${API_URL}/jobs/${jobId}`, {
+  const companyId = localStorage.getItem("companyId");
+
+  if (!token) throw new Error("No hay token de autenticación");
+  if (!companyId) throw new Error("No se encontró el ID de la empresa");
+
+  const res = await fetch(`${API_URL}/companies/${companyId}/jobs/${jobId}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`, 
@@ -187,8 +192,9 @@ export async function deleteJob(jobId: string) {
     throw new Error("No se pudo eliminar la oferta");
   }
 
-  return true; 
+  return true;
 }
+
 
 export async function getUsers() {
   const token = localStorage.getItem("token");
