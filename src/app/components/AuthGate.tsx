@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LoginForm from "./auth/LoginForm";
 import RegisterForm from "./auth/RegisterForm";
+import { isTokenValid } from "./auth/Utils";
 
 interface AuthGateProps {
   children: React.ReactNode;
@@ -11,17 +12,56 @@ interface AuthGateProps {
   toggleTheme: () => void;
 }
 
-
 export default function AuthGate({ children, onAuth, isDarkMode, toggleTheme }: AuthGateProps) {
   const [authenticated, setAuthenticated] = useState(false);
   const [mode, setMode] = useState<"login" | "register">("login");
   const [userType, setUserType] = useState<"usuario" | "empresa" | null>(null);
 
-  const handleAuth = (token: string) => {
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    const storedType = localStorage.getItem("userType") as "usuario" | "empresa" | null;
+
+    if (storedToken && storedType) {
+      try {
+        if (isTokenValid(storedToken)) {
+          setAuthenticated(true);
+          onAuth(storedToken, storedType);
+        } else {
+          setAuthenticated(false);
+          localStorage.removeItem("token");
+          localStorage.removeItem("userType");
+        }
+      } catch (error) {
+        console.error("Token inválido:", error);
+        setAuthenticated(false);
+        localStorage.removeItem("token");
+        localStorage.removeItem("userType");
+      }
+    } else {
+      setAuthenticated(false);
+      localStorage.removeItem("token");
+      localStorage.removeItem("userType");
+    }
+  }, [onAuth]);
+
+  const handleAuth = (token: string | null) => {
     if (!userType) return;
-    setAuthenticated(true);
-    onAuth(token, userType);
-  };  
+  
+    if (mode === "register") {
+      setMode("login");
+      alert("Registro exitoso. Ahora inicia sesión.");
+    } else if (token) {
+      setAuthenticated(true);
+      onAuth(token, userType);
+    }
+  };
+  
+  const handleLogout = () => {
+    setAuthenticated(false);
+    setUserType(null);
+    localStorage.removeItem("token");
+    localStorage.removeItem("userType");
+  };
 
   if (!authenticated) {
     return (

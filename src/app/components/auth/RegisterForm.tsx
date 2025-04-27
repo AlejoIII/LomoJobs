@@ -16,17 +16,15 @@ export default function RegisterForm({ onRegister, type }: RegisterFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+  
     try {
-      // 1. Registrar usuario con rol correspondiente
       const user = await registerUser({
         name,
         email,
         password,
         role: type === "empresa" ? "EMPRESA" : "ESTUDIANTE",
       });
-
-      // 2. Si es empresa, registrar empresa enlazada al usuario
+  
       if (type === "empresa") {
         await registerCompany({
           name,
@@ -37,8 +35,8 @@ export default function RegisterForm({ onRegister, type }: RegisterFormProps) {
           },
         });
       }
-
-      onRegister(user.token); // redirige o muestra modal según necesidad
+  
+      onRegister(user.token || null); 
     } catch (error) {
       console.error("Error al registrar:", error);
       alert("Error al registrar. Verifica tus datos.");
@@ -46,6 +44,7 @@ export default function RegisterForm({ onRegister, type }: RegisterFormProps) {
       setLoading(false);
     }
   };
+  
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">

@@ -6,6 +6,7 @@ import AuthGate from "./components/AuthGate";
 import Footer from "./components/Footer";
 import PostJobPopup from "./components/PostJobPopup";
 import ListJobsPopup from "./components/ListJobsPopup";
+import { postJob, updateJob, deleteJob } from "@/app/services/api";
 
 interface Job {
   id: string;
@@ -31,9 +32,18 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const storedType = localStorage.getItem("userType") as "empresa" | "usuario" | null;
+    const lastPath = localStorage.getItem("lastPath");
+
     if (storedToken && storedType) {
       setToken(storedToken);
       setUserType(storedType);
+
+      if (lastPath && lastPath !== "/login") {
+        window.history.replaceState(null, "", lastPath);
+      }
+    } else {
+      setUserType(null);
+      setToken(null);
     }
 
     const theme = localStorage.getItem("theme");
@@ -44,6 +54,20 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
       document.documentElement.classList.remove("dark");
       setIsDarkMode(false);
     }
+  }, []);
+
+  useEffect(() => {
+    const updateLastPath = () => {
+      localStorage.setItem("lastPath", window.location.pathname);
+    };
+
+    window.addEventListener("popstate", updateLastPath);
+    window.addEventListener("pushstate", updateLastPath);
+
+    return () => {
+      window.removeEventListener("popstate", updateLastPath);
+      window.removeEventListener("pushstate", updateLastPath);
+    };
   }, []);
 
   const toggleTheme = () => {
@@ -60,10 +84,28 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
   };
 
   const handleAuth = (token: string, type: "usuario" | "empresa") => {
+    const companyId = localStorage.getItem("companyId");
+  
     setToken(token);
     setUserType(type);
     localStorage.setItem("token", token);
     localStorage.setItem("userType", type);
+    localStorage.setItem("lastPath", window.location.pathname); 
+  
+    if (type === "empresa" && !companyId) {
+      fetch(`${API_URL}/users/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then(res => res.json())
+        .then(user => {
+          if (user.company && user.company.id) {
+            localStorage.setItem("companyId", user.company.id);
+          }
+        })
+        .catch(err => console.error("No se pudo obtener companyId desde /users/me:", err));
+    }
   };
 
   const handleLogout = () => {
@@ -71,34 +113,53 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
     setToken(null);
     localStorage.removeItem("token");
     localStorage.removeItem("userType");
+    localStorage.removeItem("lastPath");
     window.location.reload();
   };
 
   const handlePostJob = async (job: Partial<Job>) => {
     try {
-      const res = await fetch(`${API_URL}/jobs`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(job),
-      });
+      const companyId = localStorage.getItem("companyId");
+      if (!companyId) throw new Error("El ID de la empresa no está disponible.");
 
-      if (!res.ok) throw new Error("No se pudo publicar la oferta");
-
-      const created = await res.json();
+      const created = await postJob(job, companyId);
       setJobs((prev) => [...prev, created]);
     } catch (err) {
       console.error("Error publicando trabajo:", err);
     }
   };
 
+  const handleEditJob = async (updatedJob: Job) => {
+    try {
+      const response = await updateJob(updatedJob.id, updatedJob);
+      setJobs((prevJobs) =>
+        prevJobs.map((job) => (job.id === updatedJob.id ? response : job))
+      );
+      console.log("Oferta actualizada:", response);
+    } catch (error) {
+      console.error("Error al editar la oferta:", error);
+      alert("No se pudo editar la oferta. Intenta nuevamente.");
+    }
+  };
+
+  const handleDeleteJob = async (jobId: string) => {
+    try {
+      await deleteJob(jobId);
+      setJobs((prevJobs) => prevJobs.filter((job) => job.id !== jobId));
+      console.log("Oferta eliminada con éxito:", jobId);
+    } catch (error) {
+      console.error("Error al eliminar la oferta:", error);
+      alert("No se pudo eliminar la oferta. Intenta nuevamente.");
+    }
+  };
+
   const handleViewPosts = async () => {
     try {
-      const res = await fetch(`${API_URL}/jobs`, {
+      const res = await fetch(`${API_URL}/jobs/my`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      console.log("Token:", token);      
+      console.log(localStorage.getItem("companyId"))
 
       if (!res.ok) throw new Error("Error al obtener trabajos");
       const data = await res.json();
@@ -108,7 +169,7 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
       console.error("Error al obtener publicaciones:", err);
     }
   };
-
+  
   return (
     <div className="bg-white dark:bg-gray-900 text-black dark:text-white transition-colors duration-300 min-h-screen">
       <AuthGate isDarkMode={isDarkMode} toggleTheme={toggleTheme} onAuth={handleAuth}>
@@ -135,8 +196,23 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
           onViewApplications={() => alert("Aquí se mostrarían tus postulaciones")}
         />
 
-        {showPostJob && <PostJobPopup onClose={() => setShowPostJob(false)} onSubmit={handlePostJob} />}
-        {showListJobs && <ListJobsPopup jobs={jobs} onClose={() => setShowListJobs(false)} />}
+        {showPostJob && (
+          <PostJobPopup
+            onClose={() => setShowPostJob(false)}
+            onSubmit={handlePostJob}
+            onPost={handlePostJob}
+            loading={false} 
+            successMessage="Job posted successfully!" 
+          />
+        )}
+        {showListJobs && (
+          <ListJobsPopup
+            jobs={jobs}
+            onClose={() => setShowListJobs(false)}
+            onEdit={handleEditJob}
+            onDelete={handleDeleteJob}
+          />
+        )}
 
         {children}
         <Footer />

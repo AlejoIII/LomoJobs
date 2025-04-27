@@ -7,10 +7,10 @@ import { getJobs } from "./services/api";
 
 export default function Home() {
   const [jobData, setJobData] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   function handleSearch(query: string): void {
-    console.log("Buscando:", query);
-    // Filtrado o búsqueda futura aquí
+    setSearchQuery(query);
   }
 
   useEffect(() => {
@@ -22,12 +22,8 @@ export default function Home() {
         console.error("Error al cargar las ofertas:", err);
       }
     }
-
     fetchJobs();
   }, []);
-
-  const categories = ["Todos", "Desarrollador", "Técnico", "Diseño"];
-  const levels = ["Todos", "Medio", "Superior"];
 
   return (
     <>
@@ -38,7 +34,7 @@ export default function Home() {
         buttonText="Buscar"
         onSearch={handleSearch}
       />
-      <Jobs />
-</>
+      <Jobs jobs={jobData} searchQuery={searchQuery} />
+    </>
   );
 }
