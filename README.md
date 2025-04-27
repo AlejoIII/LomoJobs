@@ -18,9 +18,9 @@
 
   
   
-<h2>🧐 Features</h2>
+<h2>🧐 Acciones</h2>
 
-Here're some of the project's best features:
+Aqui estan algunas de las acciones que se pueden realizar:
 
 *   Registro y login de usuarios
 *   Modo oscuro y modo claro
@@ -29,7 +29,7 @@ Here're some of the project's best features:
 *   Enviar mensajes
 *   Filtros de búsqueda
 
-<h2>🛠️ Installation Steps:</h2>
+<h2>🛠️ Pasos de Instalación:</h2>
 
 <p>1. Instalar dependencias de Next.js y Tailwind:</p>
 
@@ -51,9 +51,9 @@ git clone https://github.com/tuusuario/tu-repo.git
 
   
   
-<h2>💻 Built with</h2>
+<h2>💻 Construido con:</h2>
 
-Technologies used in the project:
+Tecnologias usadas en el proyecto:
 
 *   Next.js
 *   TailWind
