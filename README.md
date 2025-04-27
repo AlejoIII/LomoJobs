@@ -4,7 +4,7 @@
 
 <p id="description">LomoJobs es una aplicación web y móvil que ofrece a los estudiantes que desean buscar un empleo relacionado con sus estudios la oportunidad de buscar trabajo a la vez que estudian o ponerse en contacto con dichas empresas para darse a conocer y tantear el terreno para un que en un futuro la empresa los tenga en cuenta a la hora de llenar una plaza de trabajo. Y también le da la oportunidad a las empresas de conocer futuros talentos o gente que encajen en su política de empresa.</p>
 
-<h2>Project Screenshots:</h2>
+<h2>Imagenes del proyecto:</h2>
 
 <img src="https://github.com/AlejoIII/LomoJobs/blob/main/public/images/Captura%20de%20pantalla%202025-04-27%20174251.png?raw=true" alt="project-screenshot" width="600" height="500/">
 
