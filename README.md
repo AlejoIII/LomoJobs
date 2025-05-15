@@ -46,10 +46,13 @@ npm install
 <p>3. Clonar el repositorio</p>
 
 ```
-git clone https://github.com/tuusuario/tu-repo.git
+git clone https://github.com/AlejoIII/LomoJobs.git
 ```
+<p>4. Clonar el repositorio de la api</p>
 
-  
+```
+git clone https://github.com/AlejoIII/LomoJobs-Api.git
+```
   
 <h2>💻 Construido con:</h2>
 
